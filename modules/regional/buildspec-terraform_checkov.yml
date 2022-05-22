@@ -1,0 +1,30 @@
+version: 0.2
+env:
+  exported-variables:
+    - review_link
+    - tests
+    - failures
+
+phases:
+  install:
+    commands:
+      - echo "Installing checkov..."
+      - pip install checkov
+      - checkov -v
+      - echo "Completed installing checkov..."
+  build:
+    commands:
+      - echo "Starting checkov static analysis"
+      - cd "${CODEBUILD_SRC_DIR}"
+      - checkov --soft-fail -d . --output junitxml | tee checkov.xml
+      - export failures=$(xmllint --xpath '//testsuites/@failures' checkov.xml)
+      - export tests=$(xmllint --xpath '//testsuites/@tests' checkov.xml)
+      - export review_link="https://${AWS_REGION}.console.aws.amazon.com/codesuite/codebuild/${ACCOUNT}/projects/terraform_checkov/build/${CODEBUILD_BUILD_ID}/reports?region=${AWS_REGION}"
+  post_build:
+    commands:
+      - echo "[Post Build]:Completed checkov..."
+reports:
+  checkov-report-group:
+    files:
+      - 'checkov.xml'
+    file-format: "JUNITXML"

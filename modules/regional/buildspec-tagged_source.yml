@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  build:
+    commands:
+      - echo "Add tag ${TAG} to source"
+      - cd "${CODEBUILD_SRC_DIR}"
+      - echo "${TAG}" > tag.txt
+      - cat tag.txt
+  post_build:
+    commands:
+      - echo "[Post Build]:Completed adding tag to source..."
+artifacts:
+  files:
+    - '**/*'

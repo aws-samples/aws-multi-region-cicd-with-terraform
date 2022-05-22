@@ -1,0 +1,40 @@
+version: 0.2
+env:
+  variables:
+    TERRAFORM_VERSION: 1.0.7
+  exported-variables:
+    - build_id
+    - build_tag
+    - pipeline_region
+
+phases:
+  install:
+    commands:
+      - echo "Installing terraform..."
+      - cd /usr/bin
+      - curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - terraform --version
+      - echo "Completed installing terraform..."
+  build:
+    commands:
+      - echo "Terraform plan for ${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE} in REGION=${REGION}"
+      - echo "TARGET_MODULE=${TARGET_MODULE}"
+      - echo "REGION_TFVARS=${REGION_TFVARS}"
+      - export build_id=$(echo $CODEBUILD_BUILD_ID | cut -d':' -f1)
+      - export build_tag=$(echo $CODEBUILD_BUILD_ID | cut -d':' -f2)
+      - export pipeline_region=$AWS_REGION
+      - cd "${CODEBUILD_SRC_DIR}"
+      - echo "terraform init -backend-config="key=${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="bucket=${TF_BACKEND_CONFIG_PREFIX}-${ENV}" -backend-config="dynamodb_table=${TF_BACKEND_CONFIG_PREFIX}-lock-${ENV}" -backend-config="encrypt=true""
+      - terraform init -backend-config="key=${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="bucket=${TF_BACKEND_CONFIG_PREFIX}-${ENV}" -backend-config="dynamodb_table=${TF_BACKEND_CONFIG_PREFIX}-lock-${ENV}" -backend-config="encrypt=true"
+      - terraform fmt
+      - terraform validate -no-color
+      - echo "terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" ${REGION_TFVARS} -var "env=${ENV}" -var "region=${REGION}" -target ${TARGET_MODULE} -out=tfplan"
+      - terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" ${REGION_TFVARS} -var "env=${ENV}" -var "region=${REGION}" -target ${TARGET_MODULE} -out=tfplan -compact-warnings
+
+  post_build:
+    commands:
+      - echo "[Post Build]:Completed terraform plan..."
+artifacts:
+  files:
+    - '**/*'

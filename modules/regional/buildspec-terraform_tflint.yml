@@ -1,0 +1,66 @@
+version: 0.2
+env:
+  variables:
+    TFLINT_VERSION: "0.34.1"
+    TFLINT_OS: "amd64"
+    TERRAFORM_VERSION: 1.0.7
+  exported-variables:
+    - ENV
+    - TARGET_DEPLOYMENT_SCOPE
+    - TEAM
+    - REGION_TFVARS
+    - TARGET_MODULE
+    - REGION
+    - TAG
+
+phases:
+  install:
+    commands:
+      - echo "Installing terraform"
+      - cd /usr/bin
+      - curl -O https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+      - terraform --version
+      - echo "Completed installing terraform"
+      - echo "Installing tflint"
+      - cd "${CODEBUILD_SRC_DIR}"
+      - wget https://github.com/terraform-linters/tflint/releases/download/v${TFLINT_VERSION}/tflint_linux_${TFLINT_OS}.zip -O tflint.zip
+      - unzip tflint.zip
+      - |
+        cat <<-EOF > .tflint.hcl
+        plugin "aws" {
+          enabled = true
+          version = "0.11.0"
+          source  = "github.com/terraform-linters/tflint-ruleset-aws"
+        }
+        EOF
+      - echo "Installing tflint plugins"
+      - cat .tflint.hcl
+      - ./tflint --init
+      - cd "${CODEBUILD_SRC_DIR}"
+      - export TAG=$(cat tag.txt)
+      - export ENV=$(echo $TAG | cut -d/ -f1 | cut -d_ -f1)
+      - export TARGET_DEPLOYMENT_SCOPE=$(echo $TAG | cut -d/ -f1 | cut -d_ -f2)
+      - export TEAM=$(echo $TAG | cut -d/ -f2)
+      - export TARGET_MODULE=$(if [[ ${TARGET_DEPLOYMENT_SCOPE} == *"global"* ]];then echo "module.global"; else echo "module.regional"; fi)
+      - export REGION=$(if [[ ${TARGET_DEPLOYMENT_SCOPE} == *"global"* ]];then echo "${GLOBAL_RESOURCE_DEPLOY_FROM_REGION}"; else echo "${TARGET_DEPLOYMENT_SCOPE}"; fi)
+      - export REGION_TFVARS=$([ -s "environments/${ENV}/{TEAM}/${REGION}.tfvars" ] && echo "-var-file \"environments/${ENV}/${TEAM}/${REGION}.tfvars\"" || echo "")
+      - echo "ENV=${ENV}"
+      - echo "TEAM=${TEAM}"
+      - echo "TARGET_DEPLOYMENT_SCOPE=${TARGET_DEPLOYMENT_SCOPE}"
+      - echo "REGION=${REGION}"
+      - echo "REGION_TFVARS=${REGION_TFVARS}"
+      - echo "TARGET_MODULE=${TARGET_MODULE}"
+      - echo "terraform init -backend-config="key=${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="bucket=${TF_BACKEND_CONFIG_PREFIX}-${ENV}" -backend-config="dynamodb_table=${TF_BACKEND_CONFIG_PREFIX}-lock-${ENV}" -backend-config="encrypt=true""
+      - terraform init -backend-config="key=${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="bucket=${TF_BACKEND_CONFIG_PREFIX}-${ENV}" -backend-config="dynamodb_table=${TF_BACKEND_CONFIG_PREFIX}-lock-${ENV}" -backend-config="encrypt=true"
+  build:
+    commands:
+      - ./tflint --module -f junit > tflint_report.xml
+  post_build:
+    commands:
+      - echo "[Post Build]:Completed tflint..."
+reports:
+  tflint:
+    files:
+      - tflint_report.xml
+    file-format: "JUNITXML"
