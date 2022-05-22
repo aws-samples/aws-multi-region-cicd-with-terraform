@@ -19,6 +19,8 @@ A multi region CI/CD pipeline with AWS CodePipeline and AWS CodeBuild in Terrafo
    * [Step 2: Destroy the resources in the central tooling account created in this repo](#step-2-destroy-the-resources-in-the-central-tooling-account-created-in-this-repo)
    * [Step 3: Destroy the Terraform state resources](#step-3-destroy-the-terraform-state-resources)
 * [Common Errors or Warnings](#common-errors-or-warnings)
+* [Security](#security)
+* [License](#license)
 
  
 ## Overall Architecture
@@ -216,7 +218,7 @@ aws sts get-caller-identity
     "Arn": "arn:aws:sts::111122223333:assumed-role/CloudOps/CLOUD_OPS"
 }
 ```
-* Git clone the sample infra code at the repo aws-sample-infra-resources-terraform into your local shadow.
+* Git clone the sample infra code at the repo [aws-sample-infra-resources-terraform](https://github.com/aws-samples/aws-sample-infra-resources-terraform) into your local shadow.
 * Update `environments/<env>/<team>/variables.tfvars` per env and team.  
    * If you prefer to use different team names, be sure to update the team folder names.  
    * Similarly if you prefer to use diff environment names, be sure to update the env folder names.  These should match the tag_prefix_list in aws-multi-region-cicd-with-terraform repo.
@@ -255,7 +257,7 @@ aws sts get-caller-identity
     "Arn": "arn:aws:sts::111122223333:assumed-role/CloudOps/CLOUD_OPS"
 }
 ```
-* Go to your local shadow of the _aws-sample-infra-resources-terraform_ repo.  See examples in the next section and details below.
+* Go to your local shadow of the [aws-sample-infra-resources-terraform](https://github.com/aws-samples/aws-sample-infra-resources-terraform) repo.  See examples in the next section and details below.
 * Typically, if there are global resource(s) required by regional resources, then you'll need to kick off the global resource pipeline once for the account first so they are available ahead of the regional deployments targeting that same account.
    * Global resources are deployed once per account.  Regional resources are deployed once per region in the account.
 * First deploy global resources by git tagging the AWS CodeCommit repo with the `<env>_global/<team>/<version>` (env can be one of (dev, qa, staging, prod) or what you set in tag_prefix_list as per previous instructions and team can be one of (risk ,research) or what you set as per previous instructions as defined in the infra repo environments config.
@@ -356,7 +358,7 @@ aws sts get-caller-identity
     "Arn": "arn:aws:sts::111122223333:assumed-role/InfraBuildRole/INFRA_BUILD"
 }
 ```
-* See the README for the sister repo _aws-sample-infra-resources-terraform_ to destroy the sample infra workload resources in the target workload account(s)
+* See the README for the sister repo [aws-sample-infra-resources-terraform](https://github.com/aws-samples/aws-sample-infra-resources-terraform) to destroy the sample infra workload resources in the target workload account(s)
 * Ensure all resources created by the sample in the target workload account(s) in each region are destroyed prior to proceeding to the next step.
 
 ### Step 2: Destroy the resources in the central tooling account created in this repo
