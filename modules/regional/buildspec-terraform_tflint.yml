@@ -44,7 +44,7 @@ phases:
       - export TEAM=$(echo $TAG | cut -d/ -f2)
       - export TARGET_MODULE=$(if [[ ${TARGET_DEPLOYMENT_SCOPE} == *"global"* ]];then echo "module.global"; else echo "module.regional"; fi)
       - export REGION=$(if [[ ${TARGET_DEPLOYMENT_SCOPE} == *"global"* ]];then echo "${GLOBAL_RESOURCE_DEPLOY_FROM_REGION}"; else echo "${TARGET_DEPLOYMENT_SCOPE}"; fi)
-      - export REGION_TFVARS=$([ -s "environments/${ENV}/{TEAM}/${REGION}.tfvars" ] && echo "-var-file \"environments/${ENV}/${TEAM}/${REGION}.tfvars\"" || echo "")
+      - export REGION_TFVARS=$([ -s "environments/${ENV}/${TEAM}/${REGION}.tfvars" ] && echo "-var-file \"environments/${ENV}/${TEAM}/${REGION}.tfvars\"" || echo "")
       - echo "ENV=${ENV}"
       - echo "TEAM=${TEAM}"
       - echo "TARGET_DEPLOYMENT_SCOPE=${TARGET_DEPLOYMENT_SCOPE}"
