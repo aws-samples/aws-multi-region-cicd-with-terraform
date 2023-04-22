@@ -88,7 +88,7 @@ EOF
   aws iam create-role --profile aws_sample_central_tooling --role-name $cloud_ops_role --assume-role-policy-document file://trust_policy.json
   aws iam attach-role-policy --profile aws_sample_central_tooling --policy-arn arn:aws:iam::aws:policy/AWSCodeCommitPowerUser --role-name $cloud_ops_role
   aws iam attach-role-policy --profile aws_sample_central_tooling --policy-arn arn:aws:iam::aws:policy/AWSConfigUserAccess --role-name $cloud_ops_role
-  aws iam attach-role-policy --profile aws_sample_central_tooling --policy-arn arn:aws:iam::aws:policy/AWSCloudTrailReadOnlyAccess --role-name $cloud_ops_role
+  aws iam attach-role-policy --profile aws_sample_central_tooling --policy-arn arn:aws:iam::aws:policy/AWSCloudTrail_ReadOnlyAccess --role-name $cloud_ops_role
   aws iam attach-role-policy --profile aws_sample_central_tooling --policy-arn arn:aws:iam::aws:policy/AWSCodeBuildReadOnlyAccess --role-name $cloud_ops_role
   aws iam attach-role-policy --profile aws_sample_central_tooling --policy-arn arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess --role-name $cloud_ops_role
   # As needed for the use case, you can use AWSCodePipelineApproverAccess instead that's more restricted
