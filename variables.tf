@@ -11,7 +11,7 @@ variable "global_resource_deploy_from_region" {
 }
 
 variable "account" {
-  type        = number
+  type        = string
   description = "Target AWS account number"
 }
 
