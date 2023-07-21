@@ -54,16 +54,6 @@ variable vpc_tags {
   type        = map(string)
 }
 
-variable "vpc_public_subnet_tags" {
-  description = "Additional tags for the public subnets"
-  type        = map(string)
-  default     = {}
-}
 
-variable "vpc_private_subnet_tags" {
-  description = "Additional tags for the private subnets"
-  type        = map(string)
-  default     = {}
-}
 
 // Ref: https://learn.hashicorp.com/tutorials/terraform/module-use and https://learn.hashicorp.com/tutorials/terraform/eks
