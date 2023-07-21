@@ -16,12 +16,11 @@ phases:
     commands:
       - echo "Terraform apply for ${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE} in REGION=${REGION}"
       - echo "TARGET_MODULE=${TARGET_MODULE}"
-      - echo "REGION_TFVARS=${REGION_TFVARS}"
       - cd "${CODEBUILD_SRC_DIR}"
       - echo "terraform init -backend-config="key=${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="bucket=${TF_BACKEND_CONFIG_PREFIX}-${ENV}" -backend-config="dynamodb_table=${TF_BACKEND_CONFIG_PREFIX}-lock-${ENV}" -backend-config="encrypt=true""
       - terraform init -backend-config="key=${TEAM}/${ENV}-${TARGET_DEPLOYMENT_SCOPE}/terraform.tfstate" -backend-config="region=$AWS_REGION" -backend-config="bucket=${TF_BACKEND_CONFIG_PREFIX}-${ENV}" -backend-config="dynamodb_table=${TF_BACKEND_CONFIG_PREFIX}-lock-${ENV}" -backend-config="encrypt=true"
-      - echo "terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" ${REGION_TFVARS} -var "env=${ENV}" -var "region=${REGION}" -target ${TARGET_MODULE} -out=tfplan" # in case of retry
-      - terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" ${REGION_TFVARS} -var "env=${ENV}" -var "region=${REGION}" -target ${TARGET_MODULE} -out=tfplan -compact-warnings # in case of retry
+      - echo "terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" -var "env=${ENV}" -var "region=${REGION}" -target ${TARGET_MODULE} -out=tfplan" # in case of retry
+      - terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" -var "env=${ENV}" -var "region=${REGION}" -target ${TARGET_MODULE} -out=tfplan -compact-warnings # in case of retry
       - terraform apply -auto-approve "tfplan" -compact-warnings
   post_build:
     commands:
