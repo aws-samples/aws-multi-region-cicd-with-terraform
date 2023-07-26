@@ -224,7 +224,7 @@ aws sts get-caller-identity
    * Similarly if you prefer to use diff environment names, be sure to update the env folder names.  These should match the tag_prefix_list in aws-multi-region-cicd-with-terraform repo.
    * Mandatory: Update the `account` number with the corresponding target workload account number.
    * Optionally, update `number_of_azs` in variables.tfvars.  Otherwise it defaults to 2.
-       * You can also set the value in each region's `<region>.tfvars` if you prefer to set it differently for a region (including any other region specific input params values though this may result in config drift and is not recommended.  Please see accompanying blog post on recommendations.)
+       * You can also set the value in each region's `<region>.tfvars` if you prefer to set it differently for a region (including any other region specific input params values though this may result in config drift and is not recommended.  Please see accompanying [blog post](https://aws.amazon.com/blogs/devops/multi-region-terraform-deployments-with-aws-codepipeline-using-terraform-built-ci-cd/) on recommendations.)
 * Go to AWS CodeCommit in the console of the central tooling account -> Repositories -> "awsome-infra-project" and copy the git clone url (HTTPS GRC) under "Clone URL"
 * Add the AWS CodeCommit remote repo as git remote with name "codecommit".  If you name the remote repo differently then make sure to use the same name in the next step!
 ```shell
@@ -264,7 +264,7 @@ aws sts get-caller-identity
 * Git tag the AWS CodeCommit repo with the `<env>_<region>/<team>/<version>` (env can be one of (dev, qa, staging, prod) or what you set in tag_prefix_list as per previous instructions and team can be one of (risk ,research) or what you set as per previous instructions as defined in the infra repo environments config.
 * Below is what happens when you git tag the AWS CodeCommit repo:
    * The git tagging first kicks off the respective `<env>-awsome-infra-project-src` AWS CodeBuild project that adds the git tag along with full clone of the repo into an S3 source bucket.  
-   * This triggers the AWS CodePipeline pipeline named `<env>-awsome-infra-project-deploy` for this environment.  The pipeline performs the deployment once you approve after each manual approval step.  For full details, please also see the accompanying blog post.
+   * This triggers the AWS CodePipeline pipeline named `<env>-awsome-infra-project-deploy` for this environment.  The pipeline performs the deployment once you approve after each manual approval step.  For full details, please also see the accompanying [blog post](https://aws.amazon.com/blogs/devops/multi-region-terraform-deployments-with-aws-codepipeline-using-terraform-built-ci-cd/).
    * You can see the tags created under Repository -> Git tags.
    * You can see the running CodeBuild job logs under Build -> Build Projects -> Click on the job -> Build History tab -> Click on Build run -> Build Logs tab
 #### Examples:
