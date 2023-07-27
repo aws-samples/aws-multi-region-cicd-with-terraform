@@ -46,6 +46,6 @@ echo "terraform init -reconfigure -backend-config="key=$TEAM/$ENV-$TARGET_DEPLOY
 terraform init -reconfigure -backend-config="key=$TEAM/$ENV-$TARGET_DEPLOYMENT_SCOPE/terraform.tfstate" -backend-config="region=$tf_state_region" -backend-config="bucket=$tf_backend_config_prefix-$ENV" -backend-config="dynamodb_table=$tf_backend_config_prefix-lock-$ENV" -backend-config="encrypt=true"
 terraform fmt
 terraform validate
-REGION_TFVARS=$([ -s "environments/${ENV}/${TEAM}/${REGION}.tfvars" ] && echo "-var-file \"environments/${ENV}/${TEAM}/${REGION}.tfvars\"" || echo "")
+REGION_TFVARS=$([ -s "environments/${ENV}/${TEAM}/${REGION}.tfvars" ] && echo "-var-file environments/${ENV}/${TEAM}/${REGION}.tfvars" || echo "")
 echo "terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" ${REGION_TFVARS} -var "env=${ENV}" -var "region=${REGION}" -var "tf_backend_config_prefix=${tf_backend_config_prefix}" -var "global_resource_deploy_from_region=${global_resource_deploy_from_region}" -target ${TARGET_MODULE} -out=tfplan"
 terraform plan -var-file "environments/${ENV}/${TEAM}/variables.tfvars" ${REGION_TFVARS} -var "env=${ENV}" -var "region=${REGION}" -var "tf_backend_config_prefix=${tf_backend_config_prefix}" -var "global_resource_deploy_from_region=${global_resource_deploy_from_region}" -target ${TARGET_MODULE} -out=tfplan -compact-warnings
